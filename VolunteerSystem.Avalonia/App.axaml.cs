@@ -2,6 +2,9 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
 using VolunteerSystem.Avalonia.ViewModels;
 using VolunteerSystem.Avalonia.Views;
 using VolunteerSystem.Data;
@@ -20,9 +23,25 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Build Configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            
+            // Simple interpolation for SA_PASSWORD if present
+            var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD");
+            if (!string.IsNullOrEmpty(saPassword) && connectionString.Contains("${SA_PASSWORD}"))
+            {
+                connectionString = connectionString.Replace("${SA_PASSWORD}", saPassword);
+            }
+
             // DI Setup
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer("Server=localhost;Database=VolunteerSystem;User Id=sa;Password=Andra1104!;TrustServerCertificate=True;")
+                .UseSqlServer(connectionString)
                 .Options;
             var dbContext = new ApplicationDbContext(options);
             

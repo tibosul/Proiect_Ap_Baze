@@ -29,7 +29,9 @@ namespace VolunteerSystem.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=localhost;Database=VolunteerSystem;User Id=sa;Password=Andra1104!;TrustServerCertificate=True;");
+                // Fallback or throw exception if not configured. 
+                // For security, do not hardcode secrets here.
+                // ideally, the context should be configured via DI.
             }
         }
 

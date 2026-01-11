@@ -54,3 +54,4 @@ artifacts/
 # Local configuration (secrets)
 appsettings.Development.json
 secrets.json
+.env

@@ -47,7 +47,17 @@ fi
 
 # 3. Setup SQL Server
 CONTAINER_NAME="sql_server_volunteer"
-DB_PASSWORD="Andra1104!"
+# Check for SA_PASSWORD env var or prompt user
+if [ -z "$SA_PASSWORD" ]; then
+    echo "SA_PASSWORD not set."
+    read -s -p "Please enter the SQL Server Password (will be hidden): " SA_PASSWORD
+    echo ""
+    if [ -z "$SA_PASSWORD" ]; then
+        echo -e "${RED}Error: Password cannot be empty.${NC}"
+        exit 1
+    fi
+fi
+DB_PASSWORD="$SA_PASSWORD"
 
 if [ ! "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
     if [ "$(sudo docker ps -aq -f name=$CONTAINER_NAME)" ]; then

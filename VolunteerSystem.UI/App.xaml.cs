@@ -22,7 +22,9 @@ namespace VolunteerSystem.UI
 
             // Initialize DB
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer("Server=localhost;Database=VolunteerSystem;User Id=sa;Password=Andra1104!;TrustServerCertificate=True;")
+                // TODO: Implement configuration for WPF
+                // .UseSqlServer("Server=localhost;Database=VolunteerSystem;User Id=sa;Password=REDACTED;TrustServerCertificate=True;")
+                .UseSqlServer("Server=localhost;Database=VolunteerSystem;User Id=sa;Password=[PLACEHOLDER];TrustServerCertificate=True;")
                 .Options;
             
             _dbContext = new ApplicationDbContext(options);
