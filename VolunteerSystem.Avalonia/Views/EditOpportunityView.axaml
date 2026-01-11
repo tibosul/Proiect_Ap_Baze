@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.EditOpportunityView"
+             x:DataType="vm:EditOpportunityViewModel">
+    <Grid RowDefinitions="Auto, *, Auto" Margin="20">
+        <TextBlock Grid.Row="0" Text="Opportunity Details" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*, 20, *" >
+            <!-- Column 1: Basic Info -->
+            <StackPanel Grid.Column="0" Spacing="15">
+                <TextBlock Text="Basic Information" FontWeight="SemiBold" FontSize="16"/>
+                
+                <StackPanel>
+                    <TextBlock Text="Title"/>
+                    <TextBox Text="{Binding Title}" Watermark="e.g. Tree Planting" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Location"/>
+                    <TextBox Text="{Binding Location}" Watermark="e.g. Central Park" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Required Skills"/>
+                    <TextBox Text="{Binding RequiredSkills}" Watermark="e.g. Gardening, Lifting" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Description"/>
+                    <TextBox Text="{Binding Description}" Watermark="Describe the activity..." Height="150" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Column 2: Schedule -->
+            <StackPanel Grid.Column="2" Spacing="15">
+                <TextBlock Text="Schedule / Shifts" FontWeight="SemiBold" FontSize="16"/>
+
+                <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="15">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Add New Shift" FontWeight="Bold"/>
+                        
+                        <DatePicker SelectedDate="{Binding NewEventDate}" HorizontalAlignment="Stretch"/>
+
+                        <Grid ColumnDefinitions="*, Auto, *">
+                            <TimePicker Grid.Column="0" SelectedTime="{Binding NewEventStartTime}" ClockIdentifier="24HourClock" HorizontalAlignment="Stretch"/>
+                            <TextBlock Grid.Column="1" Text="-" VerticalAlignment="Center" Margin="5,0"/>
+                            <TimePicker Grid.Column="2" SelectedTime="{Binding NewEventEndTime}" ClockIdentifier="24HourClock" HorizontalAlignment="Stretch"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto, *">
+                             <TextBlock Grid.Column="0" Text="Max Volunteers:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                             <NumericUpDown Grid.Column="1" Value="{Binding NewEventMaxVolunteers}" Minimum="1" Maximum="100"/>
+                        </Grid>
+                        
+                        <Button Content="Add Shift" Command="{Binding AddEventCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Current Schedule:" Margin="0,5,0,0"/>
+                <ListBox ItemsSource="{Binding Events}" BorderBrush="Gray" BorderThickness="1" Background="WhiteSmoke">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*, Auto">
+                                <StackPanel Orientation="Vertical" Spacing="2">
+                                    <TextBlock Text="{Binding StartTime, StringFormat='{}{0:dd MMM yyyy}'}" FontWeight="Bold"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <TextBlock Text="{Binding StartTime, StringFormat='{}{0:HH:mm}'}"/>
+                                        <TextBlock Text="-"/>
+                                        <TextBlock Text="{Binding EndTime, StringFormat='{}{0:HH:mm}'}"/>
+                                        <TextBlock Text="{Binding MaxVolunteers, StringFormat='(Max: {0})'}" FontStyle="Italic"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Remove" 
+                                        Command="{Binding $parent[UserControl].((vm:EditOpportunityViewModel)DataContext).RemoveEventCommand}" 
+                                        CommandParameter="{Binding}" 
+                                        Foreground="Red" Background="Transparent" BorderThickness="0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Grid>
+
+        <!-- Footer Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="20" Margin="0,20,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" Width="100" HorizontalContentAlignment="Center"/>
+            <Button Content="Save Opportunity" Command="{Binding SaveCommand}" Width="150" HorizontalContentAlignment="Center" Background="#0078D7" Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

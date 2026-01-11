@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.RegistrationView"
+             x:DataType="vm:RegistrationViewModel">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Spacing="10">
+        <TextBlock Text="Register" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <TextBox Text="{Binding Email}" Watermark="Email"/>
+        <TextBox Text="{Binding Password}" PasswordChar="*" Watermark="Password"/>
+        <TextBox Text="{Binding FullName}" Watermark="Full Name"/>
+        
+        <CheckBox Content="Register as Organizer" IsChecked="{Binding IsOrganizer}"/>
+        
+        <TextBox Text="{Binding OrganizationName}" Watermark="Organization Name"
+                 IsVisible="{Binding IsOrganizer}"/>
+
+        <Button Content="Register" Command="{Binding RegisterCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        <Button Content="Back to Login" Command="{Binding GoBackCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+
+        <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

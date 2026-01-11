@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.VolunteerDashboardView"
+             x:DataType="vm:VolunteerDashboardViewModel">
+    <DockPanel Margin="20">
+        <StackPanel DockPanel.Dock="Top" Spacing="10">
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBlock Grid.Column="0" Text="{Binding WelcomeMessage}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <Button Grid.Column="1" Content="Logout" Command="{Binding LogoutCommand}" Foreground="Red"/>
+            </Grid>
+            <TextBlock Text="{Binding Points, StringFormat='Points: {0}'}" FontSize="18" HorizontalAlignment="Center" Foreground="Green"/>
+            <TextBlock Text="Available Opportunities" FontSize="20" FontWeight="Bold" Margin="0,20,0,0"/>
+        </StackPanel>
+
+        <ListBox ItemsSource="{Binding Opportunities}" Margin="0,10,0,0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,5">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="{Binding Location}" FontStyle="Italic"/>
+                                <TextBlock Text="|" />
+                                <TextBlock Text="{Binding RequiredSkills}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Organizer.OrganizationName, StringFormat='Organized by: {0}'}" FontSize="12" Foreground="Gray"/>
+                            
+                            <!-- Events List -->
+                            <TextBlock Text="Available Shifts:" FontWeight="SemiBold" Margin="0,10,0,5"/>
+                            <ItemsControl ItemsSource="{Binding Events}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F0F0F0" CornerRadius="4" Padding="5" Margin="0,2">
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding StartTime, StringFormat='{}{0:dd MMM}'}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding StartTime, StringFormat='{}{0:HH:mm}'}"/>
+                                                    <TextBlock Text="-"/>
+                                                    <TextBlock Text="{Binding EndTime, StringFormat='{}{0:HH:mm}'}"/>
+                                                </StackPanel>
+                                                
+                                                <Button Grid.Column="1" Content="Apply" 
+                                                        Command="{Binding $parent[UserControl].((vm:VolunteerDashboardViewModel)DataContext).ApplyToEventCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#32CD32" Foreground="White"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>
