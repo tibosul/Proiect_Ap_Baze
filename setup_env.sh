@@ -14,15 +14,15 @@ if [ "$EUID" -ne 0 ] && ! command -v sudo &> /dev/null; then
   exit 1
 fi
 
-# 1. Install .NET SDK 8.0
+# 1. Install .NET SDK 10.0
 if ! command -v dotnet &> /dev/null; then
-    echo "Installing .NET SDK 8.0..."
+    echo "Installing .NET SDK 10.0..."
     # Update and install pre-requisites
     if [ -f /etc/debian_version ]; then
         sudo apt-get update
-        sudo apt-get install -y dotnet-sdk-8.0
+        sudo apt-get install -y dotnet-sdk-10.0
     elif [ -f /etc/redhat-release ]; then
-        sudo dnf install -y dotnet-sdk-8.0
+        sudo dnf install -y dotnet-sdk-10.0
     else 
         echo -e "${RED}Unsupported OS for automatic .NET installation. Please install .NET SDK 8.0 manually.${NC}"
     fi
