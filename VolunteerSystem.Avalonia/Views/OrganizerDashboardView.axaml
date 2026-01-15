@@ -3,14 +3,29 @@
              xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
              x:Class="VolunteerSystem.Avalonia.Views.OrganizerDashboardView"
              x:DataType="vm:OrganizerDashboardViewModel">
+    <UserControl.Styles>
+        <Style Selector="TextBlock.error">
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+        <Style Selector="TextBlock.success">
+            <Setter Property="Foreground" Value="Green"/>
+        </Style>
+    </UserControl.Styles>
     <DockPanel Margin="20">
         <StackPanel DockPanel.Dock="Top" Spacing="20">
             <TextBlock Text="{Binding WelcomeMessage}" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold"/>
             <TextBlock Text="{Binding OrganizationName}" HorizontalAlignment="Center" FontSize="18" FontStyle="Italic"/>
             
+            <TextBlock Text="{Binding StatusMessage}" 
+                       IsVisible="{Binding !!StatusMessage.Length}"
+                       Classes.error="{Binding IsStatusMessageError}"
+                       Classes.success="{Binding !IsStatusMessageError}"
+                       HorizontalAlignment="Center" FontWeight="SemiBold"/>
+            
             <Grid ColumnDefinitions="*, Auto">
                 <Button Grid.Column="0" Content="Create New Opportunity" Command="{Binding CreateOpportunityCommand}" HorizontalAlignment="Right" Margin="0,0,20,0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Reports" Command="{Binding GoToReportsCommand}" Background="#FF9800" Foreground="White" />
                     <Button Content="My Profile" Command="{Binding GoToProfileCommand}"/>
                     <Button Content="Chat" Command="{Binding GoToChatCommand}"/>
                     <Button Content="Logout" Command="{Binding LogoutCommand}" Foreground="Red"/>
@@ -57,7 +72,7 @@
                                                                 <TextBlock Text="{Binding Volunteer.Skills, StringFormat='- Skills: {0}'}" FontSize="10"/>
                                                                 
                                                                 <Button Content="Mark Present" FontSize="10"
-                                                                        IsVisible="{Binding !IsPresent}"
+                                                                        IsVisible="{Binding CanMarkPresent}"
                                                                         Command="{Binding $parent[UserControl].((vm:OrganizerDashboardViewModel)DataContext).MarkPresentCommand}"
                                                                         CommandParameter="{Binding}"
                                                                         Background="#4CAF50" Foreground="White"/>
@@ -65,7 +80,24 @@
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                
+                                                <!-- Feedback Section -->
+                                                <TextBlock Text="Feedback:" FontStyle="Italic" Margin="20,10,0,0" IsVisible="{Binding !!Feedbacks.Count}"/>
+                                                <ItemsControl ItemsSource="{Binding Feedbacks}" Margin="20,0,0,0">
+                                                     <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#FFF176" CornerRadius="4" Padding="5" Margin="0,2">
+                                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                    <TextBlock Text="{Binding Rating, StringFormat='⭐ {0}'}"/>
+                                                                     <TextBlock Text="{Binding Comment}" TextWrapping="Wrap" MaxWidth="300" FontStyle="Italic"/>
+                                                                    <TextBlock Text="{Binding Volunteer.FullName, StringFormat='- {0}'}" FontSize="10" Foreground="Gray" VerticalAlignment="Center"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
+
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

@@ -14,6 +14,6 @@ namespace VolunteerSystem.Core.Entities
 
         public int Rating { get; set; } // 1-5
         public string Comment { get; set; } = string.Empty;
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

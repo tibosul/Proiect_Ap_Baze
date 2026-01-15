@@ -9,32 +9,101 @@
             <Button Grid.Column="1" Content="Logout" Command="{Binding LogoutCommand}" Foreground="Red"/>
         </Grid>
 
-        <TextBlock DockPanel.Dock="Top" Text="User Management" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <TabControl Margin="0,10,0,0">
+            <!-- USERS TAB -->
+            <TabItem Header="Users" FontSize="16">
+                <Grid RowDefinitions="Auto, *">
+                     <TextBlock Text="User Management" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,10"/>
+                     <ScrollViewer Grid.Row="1">
+                        <ListBox ItemsSource="{Binding Users}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#DDD" BorderThickness="1" Padding="10" CornerRadius="5">
+                                        <Grid ColumnDefinitions="*, Auto, Auto, Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2">
+                                                <TextBlock Text="{Binding Email}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Id, StringFormat='ID: {0}'}" FontSize="12" Foreground="Gray"/>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Grid.Column="1" Text="Type: " VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding, Converter={x:Static ObjectConverters.IsNull}}" VerticalAlignment="Center"/> 
+                                            
+                                            <Button Grid.Column="3" Content="Delete" 
+                                                    Command="{Binding $parent[UserControl].((vm:AdminDashboardViewModel)DataContext).DeleteUserCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Foreground="White" Background="#F44336" Margin="20,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
 
-        <ScrollViewer>
-            <ListBox ItemsSource="{Binding Users}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="#DDD" BorderThickness="1" Padding="10" CornerRadius="5">
-                            <Grid ColumnDefinitions="*, Auto, Auto, Auto">
-                                <StackPanel Grid.Column="0" Spacing="2">
-                                    <TextBlock Text="{Binding Email}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Id, StringFormat='ID: {0}'}" FontSize="12" Foreground="Gray"/>
-                                </StackPanel>
-                                
-                                <TextBlock Grid.Column="1" Text="Type: " VerticalAlignment="Center" Margin="10,0,0,0"/>
-                                <TextBlock Grid.Column="2" Text="{Binding, Converter={x:Static ObjectConverters.IsNull}}" VerticalAlignment="Center"/> 
-                                <!-- Placeholder for Type: In real app, bind to role or type check via Converter -->
-                                
-                                <Button Grid.Column="3" Content="Delete" 
-                                        Command="{Binding $parent[UserControl].((vm:AdminDashboardViewModel)DataContext).DeleteUserCommand}"
-                                        CommandParameter="{Binding}"
-                                        Foreground="White" Background="#F44336" Margin="20,0,0,0"/>
-                            </Grid>
+            <!-- OPPORTUNITIES TAB -->
+            <TabItem Header="Opportunities" FontSize="16">
+                 <Grid RowDefinitions="Auto, *">
+                     <TextBlock Text="Content Moderation" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,10"/>
+                     <ScrollViewer Grid.Row="1">
+                        <ListBox ItemsSource="{Binding AllOpportunities}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#DDD" BorderThickness="1" Padding="10" CornerRadius="5">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2">
+                                                <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Organizer.OrganizationName, StringFormat='Organizer: {0}'}" FontSize="12" Foreground="Gray"/>
+                                            </StackPanel>
+                                            
+                                            <Button Grid.Column="1" Content="Delete" 
+                                                    Command="{Binding $parent[UserControl].((vm:AdminDashboardViewModel)DataContext).DeleteOpportunityCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Foreground="White" Background="#F44336" Margin="20,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- STATISTICS TAB -->
+            <TabItem Header="Statistics" FontSize="16">
+                <StackPanel Spacing="20" Margin="20">
+                    <TextBlock Text="System Overview" FontSize="20" FontWeight="Bold"/>
+                    
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Width="200" Height="100" Background="#E3F2FD" CornerRadius="8" Padding="15" Margin="10">
+                            <StackPanel>
+                                <TextBlock Text="Total Users" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SystemReport.TotalUsers}" FontSize="32" Foreground="#2196F3"/>
+                            </StackPanel>
                         </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </ScrollViewer>
+                         <Border Width="200" Height="100" Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="10">
+                            <StackPanel>
+                                <TextBlock Text="Total Opportunities" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SystemReport.TotalOpportunities}" FontSize="32" Foreground="#4CAF50"/>
+                            </StackPanel>
+                        </Border>
+                         <Border Width="200" Height="100" Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="10">
+                            <StackPanel>
+                                <TextBlock Text="Total Applications" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SystemReport.TotalApplications}" FontSize="32" Foreground="#FF9800"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                    
+                    <Grid ColumnDefinitions="*,*">
+                        <StackPanel Grid.Column="0" Margin="10">
+                            <TextBlock Text="User Breakdown" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="{Binding SystemReport.TotalVolunteers, StringFormat='Volunteers: {0}'}"/>
+                            <TextBlock Text="{Binding SystemReport.TotalOrganizers, StringFormat='Organizers: {0}'}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </UserControl>

@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.LeaderboardView"
+             x:DataType="vm:LeaderboardViewModel">
+    <StackPanel Margin="20" HorizontalAlignment="Center" Width="400">
+        <TextBlock Text="🏆 Leaderboard" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="#FFA000"/>
+        
+        <Button Content="Back" Command="{Binding GoBackCommand}" Margin="0,0,0,20"/>
+
+        <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Background="#FAFAFA" Padding="10">
+            <ListBox ItemsSource="{Binding TopVolunteers}" Background="Transparent">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="30, *, Auto">
+                             <!-- Rank: In real app use index converter, here just listing -->
+                            <TextBlock Grid.Column="0" Text="🏅" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FullName}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="{Binding Skills}" FontSize="10" Foreground="Gray" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding Points, StringFormat='{}{0} pts'}" 
+                                       FontWeight="Bold" Foreground="#4CAF50" FontSize="18" VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </StackPanel>
+</UserControl>

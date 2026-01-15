@@ -15,5 +15,6 @@ namespace VolunteerSystem.Core.Entities
         public bool IsCompleted { get; set; }
 
         public ICollection<Application> Applications { get; set; } = new List<Application>();
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

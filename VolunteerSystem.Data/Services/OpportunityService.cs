@@ -12,10 +12,12 @@ namespace VolunteerSystem.Data.Services
     public class OpportunityService : IOpportunityService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPointsService _pointsService;
 
-        public OpportunityService(ApplicationDbContext context)
+        public OpportunityService(ApplicationDbContext context, IPointsService pointsService)
         {
             _context = context;
+            _pointsService = pointsService;
         }
 
         public async Task<List<Opportunity>> GetAllOpportunitiesAsync()
@@ -33,6 +35,9 @@ namespace VolunteerSystem.Data.Services
                 .Include(o => o.Events)
                 .ThenInclude(e => e.Applications)
                 .ThenInclude(a => a.Volunteer)
+                .Include(o => o.Events)
+                .ThenInclude(e => e.Feedbacks)
+                .ThenInclude(f => f.Volunteer)
                 .ToListAsync();
         }
 
@@ -70,31 +75,69 @@ namespace VolunteerSystem.Data.Services
 
         public async Task ApplyToEventAsync(int volunteerId, int eventId)
         {
+            var evt = await _context.Events.FindAsync(eventId);
+            if (evt == null) throw new Exception("Event not found.");
+
+            if (evt.StartTime < DateTime.Now)
+            {
+                throw new Exception("Cannot apply to past events.");
+            }
+
             var existingApp = await _context.Applications
                 .FirstOrDefaultAsync(a => a.VolunteerId == volunteerId && a.EventId == eventId);
             
-            if (existingApp == null)
+            if (existingApp != null)
             {
-                var app = new Application
-                {
-                    VolunteerId = volunteerId,
-                    EventId = eventId,
-                    Status = ApplicationStatus.Pending,
-                    AppliedDate = DateTime.Now
-                };
-                _context.Applications.Add(app);
-                await _context.SaveChangesAsync();
+                 if (existingApp.Status == ApplicationStatus.Withdrawn)
+                 {
+                     // Optional: Allow re-applying if withdrawn? For now, throw to be safe/simple as per request.
+                     // Or maybe reactivate it? Let's throw "Already applied" as requested to prevent "many times".
+                     // Actually, if it's withdrawn, maybe they want to re-apply. 
+                     // But the user said "pot aplica de mai multe ori" (can apply multiple times) is bad.
+                     // So strict check is better.
+                     throw new Exception("You have already applied to this event (Status: " + existingApp.Status + ").");
+                 }
+                 throw new Exception("You have already applied to this event.");
             }
+
+            var app = new Application
+            {
+                VolunteerId = volunteerId,
+                EventId = eventId,
+                Status = ApplicationStatus.Pending,
+                AppliedDate = DateTime.Now
+            };
+            _context.Applications.Add(app);
+            await _context.SaveChangesAsync();
         }
         public async Task MarkAttendanceAsync(int applicationId, bool isPresent)
         {
-            var app = await _context.Applications.FindAsync(applicationId);
+            var app = await _context.Applications
+                .Include(a => a.Event)
+                .ThenInclude(e => e.Opportunity)
+                .FirstOrDefaultAsync(a => a.Id == applicationId);
+
             if (app != null)
             {
+                if (app.Status == ApplicationStatus.Withdrawn)
+                {
+                    throw new Exception("Cannot mark a withdrawn volunteer as present.");
+                }
+
+                // Prevent duplicate points/marking if already present
+                if (app.IsPresent && isPresent) return;
+
                 app.IsPresent = isPresent;
                 if (isPresent)
                 {
-                    app.Status = ApplicationStatus.Approved; 
+                    app.Status = ApplicationStatus.Approved;
+                    
+                    // Award points
+                    if (app.Event?.Opportunity != null) 
+                    {
+                        var points = app.Event.Opportunity.Points;
+                        await _pointsService.AwardPointsAsync(app.VolunteerId, points, PointsReason.CompletedEvent, app.EventId);
+                    }
                 }
                 _context.Applications.Update(app);
                 await _context.SaveChangesAsync();
@@ -130,9 +173,30 @@ namespace VolunteerSystem.Data.Services
             var application = await _context.Applications.FindAsync(applicationId);
             if (application != null)
             {
-                _context.Applications.Remove(application);
+                // Soft delete / Status update
+                application.Status = ApplicationStatus.Withdrawn;
+                _context.Applications.Update(application);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Opportunity>> GetRecommendedOpportunitiesAsync(int volunteerId)
+        {
+            var volunteer = await _context.Volunteers.FindAsync(volunteerId);
+            if (volunteer == null || string.IsNullOrWhiteSpace(volunteer.Skills))
+            {
+                return new List<Opportunity>();
+            }
+
+            var volunteerSkills = volunteer.Skills.ToLower().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            
+            // This logic is simple: if opportunity requires ANY of the volunteer's skills
+            var opportunities = await GetAllOpportunitiesAsync();
+            
+            return opportunities.Where(o => 
+                !string.IsNullOrWhiteSpace(o.RequiredSkills) &&
+                volunteerSkills.Any(s => o.RequiredSkills.ToLower().Contains(s))
+            ).ToList();
         }
     }
 }

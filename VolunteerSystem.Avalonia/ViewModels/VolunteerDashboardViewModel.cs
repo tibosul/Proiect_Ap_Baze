@@ -15,6 +15,8 @@ namespace VolunteerSystem.Avalonia.ViewModels
         private readonly IUserService _userService;
         private readonly IOpportunityService _opportunityService;
         private readonly IChatService _chatService;
+        private readonly IPointsService _pointsService;
+        private readonly IReportService _reportService;
         private readonly Volunteer _volunteer;
 
         [ObservableProperty]
@@ -26,18 +28,53 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [ObservableProperty]
         private IEnumerable<Opportunity> _opportunities = new List<Opportunity>();
 
-        public VolunteerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, Volunteer volunteer)
+        [ObservableProperty]
+        private List<Opportunity> _recommendedOpportunities = new List<Opportunity>();
+
+        [ObservableProperty]
+        private IEnumerable<PointsTransaction> _transactions = new List<PointsTransaction>();
+
+        public VolunteerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, IPointsService pointsService, IReportService reportService, Volunteer volunteer)
         {
             _mainViewModel = mainViewModel;
             _authService = authService;
             _userService = userService;
             _opportunityService = opportunityService;
             _chatService = chatService;
+            _pointsService = pointsService;
+            _reportService = reportService;
             _volunteer = volunteer;
             WelcomeMessage = $"Welcome, {volunteer.FullName}!";
+            
+            // Initial points from user object
             Points = volunteer.Points;
 
-            _ = LoadOpportunitiesAsync();
+            _ = LoadDataAsync();
+        }
+
+        private async Task LoadDataAsync()
+        {
+            await LoadOpportunitiesAsync();
+            await LoadRecommendedOpportunitiesAsync();
+            await LoadPointsDataAsync();
+        }
+
+        private async Task LoadRecommendedOpportunitiesAsync()
+        {
+            RecommendedOpportunities = await _opportunityService.GetRecommendedOpportunitiesAsync(_volunteer.Id);
+        }
+
+        [RelayCommand]
+        private async Task RefreshPoints()
+        {
+            await LoadPointsDataAsync();
+        }
+
+        private async Task LoadPointsDataAsync()
+        {
+             // Refresh points total
+             Points = await _pointsService.GetTotalPointsAsync(_volunteer.Id);
+             Transactions = await _pointsService.GetTransactionsAsync(_volunteer.Id);
         }
 
         [RelayCommand]
@@ -81,10 +118,22 @@ namespace VolunteerSystem.Avalonia.ViewModels
             _mainViewModel.CurrentView = new VolunteerApplicationsViewModel(_opportunityService, _mainViewModel, this, _volunteer);
         }
 
+        [RelayCommand]
+        private void GoToLeaderboard()
+        {
+            _mainViewModel.CurrentView = new LeaderboardViewModel(_userService, _mainViewModel, this);
+        }
+
         private async Task LoadOpportunitiesAsync()
         {
             Opportunities = await _opportunityService.GetAllOpportunitiesAsync();
         }
+        [ObservableProperty]
+        private string _statusMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _isStatusMessageError = false; // To color code the message
+
         [RelayCommand]
         private async Task ApplyToEvent(Event evt)
         {
@@ -92,15 +141,19 @@ namespace VolunteerSystem.Avalonia.ViewModels
             {
                 try
                 {
+                    StatusMessage = string.Empty; // Clear previous
                     await _opportunityService.ApplyToEventAsync(_volunteer.Id, evt.Id);
-                    // In a real app, show a success dialog or toast
-                    Console.WriteLine($"[INFO] Applied to event {evt.Id} successfully.");
+                    
+                    StatusMessage = "Successfully applied!";
+                    IsStatusMessageError = false;
                     
                     // Refresh to potentially show update status (if we loaded applications)
                     await LoadOpportunitiesAsync();
                 }
                 catch (System.Exception ex)
                 {
+                     StatusMessage = ex.Message;
+                     IsStatusMessageError = true;
                      Console.WriteLine($"[ERROR] Failed to apply: {ex.Message}");
                 }
             }
@@ -109,7 +162,7 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [RelayCommand]
         private void Logout()
         {
-            _mainViewModel.CurrentView = new LoginViewModel(_authService, _userService, _opportunityService, _chatService, _mainViewModel);
+            _mainViewModel.CurrentView = new LoginViewModel(_authService, _userService, _opportunityService, _chatService, _pointsService, _reportService, _mainViewModel);
         }
     }
 }

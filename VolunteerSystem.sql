@@ -170,6 +170,7 @@ CREATE TABLE dbo.Opportunities (
     Description NVARCHAR(MAX) NOT NULL,
     RequiredSkills NVARCHAR(MAX) NOT NULL CONSTRAINT DF_Opportunities_RequiredSkills DEFAULT '',
     Location NVARCHAR(256) NULL,
+    Points INT NOT NULL CONSTRAINT DF_Opportunities_Points DEFAULT 10,
 
     City NVARCHAR(128) NULL,
     Lat DECIMAL(9,6) NULL,

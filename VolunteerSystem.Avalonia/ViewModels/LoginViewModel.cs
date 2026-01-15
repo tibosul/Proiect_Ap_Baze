@@ -13,6 +13,8 @@ namespace VolunteerSystem.Avalonia.ViewModels
         private readonly IUserService _userService;
         private readonly IOpportunityService _opportunityService;
         private readonly IChatService _chatService;
+        private readonly IPointsService _pointsService;
+        private readonly IReportService _reportService;
         private readonly MainViewModel _mainViewModel;
 
         [ObservableProperty]
@@ -24,12 +26,14 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [ObservableProperty]
         private string _errorMessage = string.Empty;
 
-        public LoginViewModel(IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, MainViewModel mainViewModel)
+        public LoginViewModel(IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, IPointsService pointsService, IReportService reportService, MainViewModel mainViewModel)
         {
             _authService = authService;
             _userService = userService;
             _opportunityService = opportunityService;
             _chatService = chatService;
+            _pointsService = pointsService;
+            _reportService = reportService;
             _mainViewModel = mainViewModel;
         }
 
@@ -47,15 +51,15 @@ namespace VolunteerSystem.Avalonia.ViewModels
                     // Navigate to Dashboard based on Role
                     if (user is Admin admin)
                     {
-                        _mainViewModel.CurrentView = new AdminDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, admin);
+                        _mainViewModel.CurrentView = new AdminDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, _pointsService, _reportService, admin);
                     }
                     else if (user is Volunteer volunteer)
                     {
-                        _mainViewModel.CurrentView = new VolunteerDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, volunteer);
+                        _mainViewModel.CurrentView = new VolunteerDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, _pointsService, _reportService, volunteer);
                     }
                     else if (user is Organizer organizer)
                     {
-                        _mainViewModel.CurrentView = new OrganizerDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, organizer);
+                        _mainViewModel.CurrentView = new OrganizerDashboardViewModel(_mainViewModel, _authService, _userService, _opportunityService, _chatService, _pointsService, _reportService, organizer);
                     }
                     else
                     {

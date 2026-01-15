@@ -64,6 +64,7 @@ namespace VolunteerSystem.Avalonia.ViewModels
                 try
                 {
                     await _opportunityService.WithdrawApplicationAsync(app.Id);
+                    // Refresh
                     await LoadApplicationsAsync();
                 }
                 catch (System.Exception ex)

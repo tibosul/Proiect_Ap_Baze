@@ -23,5 +23,8 @@ namespace VolunteerSystem.Core.Entities
         public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
         public DateTime AppliedDate { get; set; } = DateTime.Now;
         public bool IsPresent { get; set; } // Marked by organizer
+        
+        public bool CanWithdraw => Status == ApplicationStatus.Pending;
+        public bool CanMarkPresent => !IsPresent && Status != ApplicationStatus.Withdrawn;
     }
 }

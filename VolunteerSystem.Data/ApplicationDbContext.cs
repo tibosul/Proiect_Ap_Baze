@@ -15,6 +15,7 @@ namespace VolunteerSystem.Data
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<PointsTransaction> PointsTransactions { get; set; }
 
         public ApplicationDbContext()
         {
@@ -51,7 +52,7 @@ namespace VolunteerSystem.Data
             modelBuilder.Entity<Application>(entity =>
             {
                 entity.Property(e => e.AppliedDate).HasColumnName("AppliedAt");
-                entity.Ignore(e => e.IsPresent); // Not in SQL table, handled by EventAttendance
+                // entity.Ignore(e => e.IsPresent); // Enabled mapping
             });
         }
     }

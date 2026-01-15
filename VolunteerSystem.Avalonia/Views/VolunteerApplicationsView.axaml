@@ -39,7 +39,7 @@
                                         CommandParameter="{Binding}"
                                         FontSize="12" Padding="5,2" HorizontalAlignment="Right"/>
                                 <Button Content="Withdraw"
-                                        IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNull}}" 
+                                        IsVisible="{Binding CanWithdraw}" 
                                         Command="{Binding $parent[UserControl].((vm:VolunteerApplicationsViewModel)DataContext).WithdrawCommand}"
                                         CommandParameter="{Binding}"
                                         Background="#FF5252" Foreground="White"

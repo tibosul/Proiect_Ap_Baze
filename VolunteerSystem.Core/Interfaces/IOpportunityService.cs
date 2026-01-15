@@ -17,5 +17,6 @@ namespace VolunteerSystem.Core.Interfaces
         Task SubmitFeedbackAsync(Feedback feedback);
         Task<List<Opportunity>> SearchOpportunitiesAsync(string query);
         Task WithdrawApplicationAsync(int applicationId);
+        Task<List<Opportunity>> GetRecommendedOpportunitiesAsync(int volunteerId);
     }
 }

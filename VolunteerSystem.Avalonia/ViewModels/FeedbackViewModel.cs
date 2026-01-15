@@ -37,7 +37,7 @@ namespace VolunteerSystem.Avalonia.ViewModels
                 EventId = _application.EventId,
                 Rating = Rating,
                 Comment = Comment,
-                Date = DateTime.Now
+                CreatedAt = DateTime.Now
             };
 
             await _opportunityService.SubmitFeedbackAsync(feedback);

@@ -9,6 +9,7 @@ namespace VolunteerSystem.Core.Entities
         public string Description { get; set; } = string.Empty;
         public string RequiredSkills { get; set; } = string.Empty; // Comma separated for now
         public string Location { get; set; } = string.Empty;
+        public int Points { get; set; } = 10;
         
         public int OrganizerId { get; set; }
         public Organizer Organizer { get; set; } = null!;
