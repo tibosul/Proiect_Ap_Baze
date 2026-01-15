@@ -22,6 +22,9 @@ namespace VolunteerSystem.Avalonia.ViewModels
         private string _fullName = string.Empty;
 
         [ObservableProperty]
+        private string _skills = string.Empty;
+
+        [ObservableProperty]
         private bool _isOrganizer;
 
         [ObservableProperty]
@@ -54,7 +57,7 @@ namespace VolunteerSystem.Avalonia.ViewModels
                 }
                 else
                 {
-                    await _authService.RegisterVolunteerAsync(Email, Password, FullName, "General");
+                    await _authService.RegisterVolunteerAsync(Email, Password, FullName, Skills);
                 }
 
                 // Metadata: Show success or login automatically?

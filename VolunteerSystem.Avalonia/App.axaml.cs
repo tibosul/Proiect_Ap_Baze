@@ -9,6 +9,7 @@ using VolunteerSystem.Avalonia.ViewModels;
 using VolunteerSystem.Avalonia.Views;
 using VolunteerSystem.Data;
 using VolunteerSystem.Data.Services;
+using VolunteerSystem.Core.Interfaces; // Ensure this is present if needed by App
 
 namespace VolunteerSystem.Avalonia;
 
@@ -34,21 +35,30 @@ public partial class App : Application
             
             // Simple interpolation for SA_PASSWORD if present
             var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD");
-            if (!string.IsNullOrEmpty(saPassword) && connectionString.Contains("${SA_PASSWORD}"))
+            if (!string.IsNullOrEmpty(saPassword) && connectionString != null && connectionString.Contains("${SA_PASSWORD}"))
             {
                 connectionString = connectionString.Replace("${SA_PASSWORD}", saPassword);
+                Console.WriteLine("[App] SA_PASSWORD found and substituted.");
             }
+            else
+            {
+                Console.WriteLine($"[App] SA_PASSWORD env var is '{saPassword}'. ConnectionString contains substitution? {connectionString?.Contains("${SA_PASSWORD}")}");
+            }
+            
+            Console.WriteLine($"[App] ConnectionString (redacted): {connectionString?.Replace(saPassword ?? "SA_PASSWORD", "***")}");
 
             // DI Setup
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer(connectionString)
+                .UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null))
                 .Options;
             var dbContext = new ApplicationDbContext(options);
             
             var authService = new AuthenticationService(dbContext);
+            var userService = new UserService(dbContext);
             var opportunityService = new OpportunityService(dbContext);
+            var chatService = new ChatService(dbContext);
             var mainViewModel = new MainViewModel();
-            var loginViewModel = new LoginViewModel(authService, opportunityService, mainViewModel);
+            var loginViewModel = new LoginViewModel(authService, userService, opportunityService, chatService, mainViewModel);
 
             mainViewModel.CurrentView = loginViewModel;
 

@@ -219,7 +219,7 @@ CREATE TABLE dbo.Events (
 GO
 CREATE INDEX IX_Events_OpportunityId ON dbo.Events(OpportunityId);
 GO
-CREATE INDEX IX_Events_StartAt ON dbo.Events(StartAt);
+CREATE INDEX IX_Events_StartTime ON dbo.Events(StartTime);
 GO
 
 /* ==========================================
@@ -354,39 +354,21 @@ CREATE INDEX IX_Reports_Target ON dbo.Reports(TargetType, TargetId);
 GO
 
 /* ==========================================
-   8) CHAT (conversations + messages)
+   8) CHAT (simple messages)
    ========================================== */
-
-CREATE TABLE dbo.ChatConversations (
-    Id INT IDENTITY(1,1) CONSTRAINT PK_ChatConversations PRIMARY KEY,
-    EventId INT NULL,
-    OrganizerId INT NOT NULL,
-    VolunteerId INT NOT NULL,
-    CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_ChatConversations_CreatedAt DEFAULT SYSUTCDATETIME(),
-
-    CONSTRAINT FK_ChatConversations_Event FOREIGN KEY (EventId) REFERENCES dbo.Events(Id) ON DELETE SET NULL,
-    CONSTRAINT FK_ChatConversations_Organizer FOREIGN KEY (OrganizerId) REFERENCES dbo.Users(Id),
-    CONSTRAINT FK_ChatConversations_Volunteer FOREIGN KEY (VolunteerId) REFERENCES dbo.Users(Id)
-);
-GO
-CREATE INDEX IX_ChatConversations_EventId ON dbo.ChatConversations(EventId);
-GO
-CREATE INDEX IX_ChatConversations_OrgVol ON dbo.ChatConversations(OrganizerId, VolunteerId);
-GO
 
 CREATE TABLE dbo.ChatMessages (
     Id INT IDENTITY(1,1) CONSTRAINT PK_ChatMessages PRIMARY KEY,
-    ConversationId INT NOT NULL,
     SenderId INT NOT NULL,
+    ReceiverId INT NOT NULL,
     Content NVARCHAR(MAX) NOT NULL,
-    SentAt DATETIME2 NOT NULL CONSTRAINT DF_ChatMessages_SentAt DEFAULT SYSUTCDATETIME(),
-    ReadAt DATETIME2 NULL,
+    Timestamp DATETIME2 NOT NULL CONSTRAINT DF_ChatMessages_Timestamp DEFAULT SYSUTCDATETIME(),
 
-    CONSTRAINT FK_ChatMessages_Conversation FOREIGN KEY (ConversationId) REFERENCES dbo.ChatConversations(Id) ON DELETE CASCADE,
-    CONSTRAINT FK_ChatMessages_Sender FOREIGN KEY (SenderId) REFERENCES dbo.Users(Id)
+    CONSTRAINT FK_ChatMessages_Sender FOREIGN KEY (SenderId) REFERENCES dbo.Users(Id),
+    CONSTRAINT FK_ChatMessages_Receiver FOREIGN KEY (ReceiverId) REFERENCES dbo.Users(Id) -- Self-reference to Users
 );
 GO
-CREATE INDEX IX_ChatMessages_ConversationId ON dbo.ChatMessages(ConversationId);
+CREATE INDEX IX_ChatMessages_SenderReceiver ON dbo.ChatMessages(SenderId, ReceiverId);
 GO
 
 /* ==========================================
@@ -417,5 +399,17 @@ INSERT INTO dbo.VolunteerProfiles (Id, FullName, Skills, Points)
 VALUES (@VolunteerId, N'Demo Volunteer', N'Coding,Testing', 10);
 
 INSERT INTO dbo.UserRoles (UserId, RoleId) VALUES (@VolunteerId, 1); -- 1 = Volunteer
+GO
+
+-- 3. Organizer User
+INSERT INTO dbo.Users (Email, PasswordHash, IsEmailConfirmed)
+VALUES (N'organizer@test.com', N'a109e36947ad56de1dca1cc49f0ef8ac9ad9a7b1aa0df41fb3c4cb73c1ff01ea', 1);
+
+DECLARE @OrganizerId INT = SCOPE_IDENTITY();
+
+INSERT INTO dbo.OrganizerProfiles (Id, OrganizationName, OrganizationDescription, IsVerified)
+VALUES (@OrganizerId, N'Demo Charity', N'Helping people.', 1);
+
+INSERT INTO dbo.UserRoles (UserId, RoleId) VALUES (@OrganizerId, 2); -- 2 = Organizer
 GO
 

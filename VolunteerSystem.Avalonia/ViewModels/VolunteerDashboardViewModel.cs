@@ -12,7 +12,9 @@ namespace VolunteerSystem.Avalonia.ViewModels
     {
         private readonly MainViewModel _mainViewModel;
         private readonly IAuthenticationService _authService;
+        private readonly IUserService _userService;
         private readonly IOpportunityService _opportunityService;
+        private readonly IChatService _chatService;
         private readonly Volunteer _volunteer;
 
         [ObservableProperty]
@@ -24,16 +26,59 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [ObservableProperty]
         private IEnumerable<Opportunity> _opportunities = new List<Opportunity>();
 
-        public VolunteerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IOpportunityService opportunityService, Volunteer volunteer)
+        public VolunteerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, Volunteer volunteer)
         {
             _mainViewModel = mainViewModel;
             _authService = authService;
+            _userService = userService;
             _opportunityService = opportunityService;
+            _chatService = chatService;
             _volunteer = volunteer;
             WelcomeMessage = $"Welcome, {volunteer.FullName}!";
             Points = volunteer.Points;
 
             _ = LoadOpportunitiesAsync();
+        }
+
+        [RelayCommand]
+        private void GoToChat()
+        {
+            _mainViewModel.CurrentView = new ChatViewModel(_chatService, _mainViewModel, _volunteer, this);
+        }
+
+        [ObservableProperty]
+        private string _searchText = string.Empty;
+
+        [RelayCommand]
+        private async Task Search()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                await LoadOpportunitiesAsync();
+            }
+            else
+            {
+                Opportunities = await _opportunityService.SearchOpportunitiesAsync(SearchText);
+            }
+        }
+        
+        [RelayCommand]
+        private async Task ClearSearch()
+        {
+            SearchText = string.Empty;
+            await LoadOpportunitiesAsync();
+        }
+
+        [RelayCommand]
+        private void GoToProfile()
+        {
+            _mainViewModel.CurrentView = new VolunteerProfileViewModel(_userService, _mainViewModel, this, _volunteer);
+        }
+
+        [RelayCommand]
+        private void GoToApplications()
+        {
+            _mainViewModel.CurrentView = new VolunteerApplicationsViewModel(_opportunityService, _mainViewModel, this, _volunteer);
         }
 
         private async Task LoadOpportunitiesAsync()
@@ -64,7 +109,7 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [RelayCommand]
         private void Logout()
         {
-            _mainViewModel.CurrentView = new LoginViewModel(_authService, _opportunityService, _mainViewModel);
+            _mainViewModel.CurrentView = new LoginViewModel(_authService, _userService, _opportunityService, _chatService, _mainViewModel);
         }
     }
 }

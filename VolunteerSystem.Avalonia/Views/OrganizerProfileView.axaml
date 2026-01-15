@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.OrganizerProfileView"
+             x:DataType="vm:OrganizerProfileViewModel">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Spacing="10">
+        <TextBlock Text="Edit Organization Profile" FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <TextBlock Text="Organization Name"/>
+        <TextBox Text="{Binding OrganizationName}"/>
+
+        <TextBlock Text="Description"/>
+        <TextBox Text="{Binding OrganizationDescription}" AcceptsReturn="True" Height="100"/>
+
+        <TextBlock Text="{Binding Message}" Foreground="Green" HorizontalAlignment="Center"/>
+
+        <Button Content="Save Changes" Command="{Binding SaveProfileCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        <Button Content="Back to Dashboard" Command="{Binding GoBackCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+    </StackPanel>
+</UserControl>

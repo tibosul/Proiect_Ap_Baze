@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VolunteerSystem.Avalonia.ViewModels"
+             x:Class="VolunteerSystem.Avalonia.Views.VolunteerApplicationsView"
+             x:DataType="vm:VolunteerApplicationsViewModel">
+    <DockPanel Margin="20">
+        <StackPanel DockPanel.Dock="Top" Spacing="10">
+            <TextBlock Text="My Applications" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <Button Content="Back to Dashboard" Command="{Binding GoBackCommand}"/>
+            <TextBlock Text="{Binding Message}" Foreground="Gray" HorizontalAlignment="Center" IsVisible="{Binding !!Message}"/>
+        </StackPanel>
+
+        <ListBox ItemsSource="{Binding Applications}" Margin="0,10,0,0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,5">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <StackPanel Grid.Column="0" Spacing="5">
+                                <TextBlock Text="{Binding Event.Opportunity.Title}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="{Binding Event.Opportunity.Organizer.OrganizationName, StringFormat='Organization: {0}'}" FontSize="12" Foreground="Gray"/>
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <TextBlock Text="Event Date:" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Event.StartTime, StringFormat='{}{0:dd MMM HH:mm}'}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <TextBlock Text="Applied On:" FontStyle="Italic"/>
+                                    <TextBlock Text="{Binding AppliedDate, StringFormat='{}{0:dd MMM yyyy}'}" FontStyle="Italic"/>
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="5" HorizontalAlignment="Right">
+                                <Border Background="#E0E0E0" CornerRadius="10" Padding="10,5" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding Status}" FontWeight="Bold"/>
+                                </Border>
+                                <TextBlock Text="✅ Attended" Foreground="Green" IsVisible="{Binding IsPresent}" HorizontalAlignment="Right" FontSize="12"/>
+                                <Button Content="Leave Feedback" 
+                                        IsVisible="{Binding IsPresent}"
+                                        Command="{Binding $parent[UserControl].((vm:VolunteerApplicationsViewModel)DataContext).GiveFeedbackCommand}"
+                                        CommandParameter="{Binding}"
+                                        FontSize="12" Padding="5,2" HorizontalAlignment="Right"/>
+                                <Button Content="Withdraw"
+                                        IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNull}}" 
+                                        Command="{Binding $parent[UserControl].((vm:VolunteerApplicationsViewModel)DataContext).WithdrawCommand}"
+                                        CommandParameter="{Binding}"
+                                        Background="#FF5252" Foreground="White"
+                                        FontSize="12" Padding="5,2" HorizontalAlignment="Right"
+                                        Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

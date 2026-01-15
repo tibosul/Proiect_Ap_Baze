@@ -11,7 +11,9 @@ namespace VolunteerSystem.Avalonia.ViewModels
     {
         private readonly MainViewModel _mainViewModel;
         private readonly IAuthenticationService _authService;
+        private readonly IUserService _userService;
         private readonly IOpportunityService _opportunityService;
+        private readonly IChatService _chatService;
         private readonly Organizer _organizer;
 
         [ObservableProperty]
@@ -23,17 +25,31 @@ namespace VolunteerSystem.Avalonia.ViewModels
         [ObservableProperty]
         private IEnumerable<Opportunity> _opportunities = new List<Opportunity>();
 
-        public OrganizerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IOpportunityService opportunityService, Organizer organizer)
+        public OrganizerDashboardViewModel(MainViewModel mainViewModel, IAuthenticationService authService, IUserService userService, IOpportunityService opportunityService, IChatService chatService, Organizer organizer)
         {
             _mainViewModel = mainViewModel;
             _authService = authService;
+            _userService = userService;
             _opportunityService = opportunityService;
+            _chatService = chatService;
             _organizer = organizer;
             WelcomeMessage = $"Welcome, {organizer.OrganizationName}!";
             OrganizationName = organizer.OrganizationName;
 
             // Load initial data
             _ = RefreshOpportunitiesAsync();
+        }
+
+        [RelayCommand]
+        private void GoToProfile()
+        {
+            _mainViewModel.CurrentView = new OrganizerProfileViewModel(_userService, _mainViewModel, this, _organizer);
+        }
+
+        [RelayCommand]
+        private void GoToChat()
+        {
+            _mainViewModel.CurrentView = new ChatViewModel(_chatService, _mainViewModel, _organizer, this);
         }
 
         public async Task RefreshOpportunitiesAsync()
@@ -56,9 +72,20 @@ namespace VolunteerSystem.Avalonia.ViewModels
             }
         }
         [RelayCommand]
+        private async Task MarkPresent(Application app)
+        {
+            if (app != null)
+            {
+                await _opportunityService.MarkAttendanceAsync(app.Id, true);
+                app.IsPresent = true; // Update local model
+                // Maybe show a message?
+            }
+        }
+
+        [RelayCommand]
         private void Logout()
         {
-            _mainViewModel.CurrentView = new LoginViewModel(_authService, _opportunityService, _mainViewModel);
+             _mainViewModel.CurrentView = new LoginViewModel(_authService, _userService, _opportunityService, _chatService, _mainViewModel);
         }
     }
 }

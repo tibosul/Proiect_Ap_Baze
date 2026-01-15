@@ -32,6 +32,17 @@ namespace VolunteerSystem.Data.Services
                 .Where(o => o.OrganizerId == organizerId)
                 .Include(o => o.Events)
                 .ThenInclude(e => e.Applications)
+                .ThenInclude(a => a.Volunteer)
+                .ToListAsync();
+        }
+
+        public async Task<List<Application>> GetVolunteerApplicationsAsync(int volunteerId)
+        {
+            return await _context.Applications
+                .Where(a => a.VolunteerId == volunteerId)
+                .Include(a => a.Event)
+                .ThenInclude(e => e.Opportunity)
+                .OrderByDescending(a => a.AppliedDate)
                 .ToListAsync();
         }
 
@@ -72,6 +83,54 @@ namespace VolunteerSystem.Data.Services
                     AppliedDate = DateTime.Now
                 };
                 _context.Applications.Add(app);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task MarkAttendanceAsync(int applicationId, bool isPresent)
+        {
+            var app = await _context.Applications.FindAsync(applicationId);
+            if (app != null)
+            {
+                app.IsPresent = isPresent;
+                if (isPresent)
+                {
+                    app.Status = ApplicationStatus.Approved; 
+                }
+                _context.Applications.Update(app);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SubmitFeedbackAsync(Feedback feedback)
+        {
+            _context.Feedbacks.Add(feedback);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Opportunity>> SearchOpportunitiesAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await GetAllOpportunitiesAsync();
+            }
+
+            query = query.ToLower();
+            return await _context.Opportunities
+                .Include(o => o.Organizer)
+                .Include(o => o.Events)
+                .Where(o => o.Title.ToLower().Contains(query) || 
+                            o.Description.ToLower().Contains(query) || 
+                            o.Location.ToLower().Contains(query) ||
+                            o.RequiredSkills.ToLower().Contains(query))
+                .ToListAsync();
+        }
+
+        public async Task WithdrawApplicationAsync(int applicationId)
+        {
+            var application = await _context.Applications.FindAsync(applicationId);
+            if (application != null)
+            {
+                _context.Applications.Remove(application);
                 await _context.SaveChangesAsync();
             }
         }

@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VolunteerSystem.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VolunteerSystem.Avalonia.Views.FeedbackView"
+             x:DataType="vm:FeedbackViewModel">
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Width="400">
+        <TextBlock Text="Leave Feedback" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+        <TextBlock Text="Rating (1-5):" />
+        <NumericUpDown Value="{Binding Rating}" Minimum="1" Maximum="5" FormatString="0"/>
+
+        <TextBlock Text="Comment:" />
+        <TextBox Text="{Binding Comment}" Height="100" AcceptsReturn="True" Watermark="Write your experience..."/>
+
+        <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center">
+            <Button Command="{Binding SubmitFeedbackCommand}" Content="Submit" Background="#4CAF50" Foreground="White"/>
+            <Button Command="{Binding CancelCommand}" Content="Cancel" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

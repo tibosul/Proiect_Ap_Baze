@@ -12,6 +12,9 @@
         
         <CheckBox Content="Register as Organizer" IsChecked="{Binding IsOrganizer}"/>
         
+        <TextBox Text="{Binding Skills}" Watermark="Skills (comma separated)"
+                 IsVisible="{Binding !IsOrganizer}"/>
+        
         <TextBox Text="{Binding OrganizationName}" Watermark="Organization Name"
                  IsVisible="{Binding IsOrganizer}"/>
 
